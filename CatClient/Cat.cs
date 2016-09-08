@@ -270,6 +270,45 @@ namespace Org.Unidal.Cat
             catch (Exception ex) { Cat.lastException = ex; }
         }
 
+        public static void LogRemoteCallClient(Context context)
+        {
+            IMessageTree tree = GetManager().ThreadLocalMessageTree;
+            string messageId = tree.MessageId;
+
+            if (messageId == null)
+            {
+                messageId = CreateMessageId();
+                tree.MessageId = messageId;
+            }
+
+            string childId = CreateMessageId();
+            LogEvent(CatConstants.TYPE_REMOTE_CALL, "", CatConstants.SUCCESS, childId);
+
+            string root = tree.RootMessageId;
+
+            if (root == null)
+                root = messageId;
+
+            context.AddProperty(Context.ROOT, root);
+            context.AddProperty(Context.PARENT, messageId);
+            context.AddProperty(Context.CHILD, childId);
+        }
+
+        public static void LogRemoteCallServer(Context context)
+        {
+            IMessageTree tree = GetManager().ThreadLocalMessageTree;
+            string messageId = context.GetProperty(Context.CHILD);
+            string rootId = context.GetProperty(Context.ROOT);
+            string parentId = context.GetProperty(Context.PARENT);
+
+            if (messageId != null)
+                tree.MessageId = messageId;
+            if (parentId != null)
+                tree.ParentMessageId = parentId;
+            if (rootId != null)
+                tree.RootMessageId = rootId;
+        }
+
         public static void Setup()
         {
             try { Cat.GetManager().Setup(); }
@@ -308,6 +347,15 @@ namespace Org.Unidal.Cat
                 return ret;
             }
             catch (Exception ex) { Cat.lastException = ex; return ""; }
+        }
+
+        public abstract class Context
+        {
+            public const string ROOT = "_catRootMessageId";
+            public const string PARENT = "_catParentMessageId";
+            public const string CHILD = "_catChildMessageId";
+            public abstract void AddProperty(string key, string value);
+            public abstract string GetProperty(string key);
         }
     }
 }
