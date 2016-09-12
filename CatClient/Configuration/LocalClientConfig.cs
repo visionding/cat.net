@@ -43,40 +43,47 @@ namespace Org.Unidal.Cat.Configuration
 
         private void Init(string configFile)
         {
-            if (!String.IsNullOrWhiteSpace(configFile) && File.Exists(configFile))
+            if (!String.IsNullOrWhiteSpace(configFile))
             {
-                XmlDocument doc = new XmlDocument();
-
-                doc.Load(configFile);
-
-                XmlElement root = doc.DocumentElement;
-
-                if (root != null)
+                if (!Path.IsPathRooted(configFile))
                 {
-                    this.MaxQueueSize = GetMaxQueueSize(root);
-                    this.MaxQueueByteSize = GetMaxQueueByteSize(root);
-                    this.Domain = BuildDomain(root.GetElementsByTagName("domain"));
-                    bool logEnable = BuildLogEnabled(root.GetElementsByTagName("logEnabled"));
-                    Logger.Initialize(this.Domain.Id, logEnable);
-                    Logger.Info("Use config file({0}).", configFile);
+                    string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                    configFile = Path.Combine(baseDirectory, configFile);
+                }
+                if (File.Exists(configFile))
+                {
 
-                    IEnumerable<Server> servers = BuildServers(root.GetElementsByTagName("servers"));
+                    XmlDocument doc = new XmlDocument();
 
-                    //NOTE: 只添加Enabled的
-                    Servers = new List<Server>();
-                    foreach (Server server in servers.Where(server => server.Enabled))
+                    doc.Load(configFile);
+
+                    XmlElement root = doc.DocumentElement;
+
+                    if (root != null)
                     {
-                        Servers.Add(server);
-                        Logger.Info("CAT server configured: {0}:{1}", server.Ip, server.Port);
+                        this.MaxQueueSize = GetMaxQueueSize(root);
+                        this.MaxQueueByteSize = GetMaxQueueByteSize(root);
+                        this.Domain = BuildDomain(root.GetElementsByTagName("domain"));
+                        bool logEnable = BuildLogEnabled(root.GetElementsByTagName("logEnabled"));
+                        Logger.Initialize(this.Domain.Id, logEnable);
+                        Logger.Info("Use config file({0}).", configFile);
+
+                        IEnumerable<Server> servers = BuildServers(root.GetElementsByTagName("servers"));
+
+                        //NOTE: 只添加Enabled的
+                        Servers = new List<Server>();
+                        foreach (Server server in servers.Where(server => server.Enabled))
+                        {
+                            Servers.Add(server);
+                            Logger.Info("CAT server configured: {0}:{1}", server.Ip, server.Port);
+                        }
                     }
+                    return;
                 }
             }
-            else
-            {
-                Logger.Warn("Config file({0}) not found, using localhost:2280 instead.", configFile);
-                Domain = BuildDomain(null);
-                Servers.Add(new Server("localhost", 2280));
-            }
+            Logger.Warn("Config file({0}) not found, using localhost:2280 instead.", configFile);
+            Domain = BuildDomain(null);
+            Servers.Add(new Server("localhost", 2280));
         }
 
         private int GetMaxQueueSize(XmlElement element)
