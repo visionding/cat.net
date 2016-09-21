@@ -24,6 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
+    <DocumentationFile>bin\Debug\Cat.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,8 +36,7 @@
     <DefineConstants>
     </DefineConstants>
     <DebugSymbols>true</DebugSymbols>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile>bin\Release\Cat.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
