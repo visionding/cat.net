@@ -270,6 +270,7 @@ namespace Org.Unidal.Cat
             catch (Exception ex) { Cat.lastException = ex; }
         }
 
+        // added by dingning
         public static void LogRemoteCallClient(Context context)
         {
             IMessageTree tree = GetManager().ThreadLocalMessageTree;
@@ -294,6 +295,7 @@ namespace Org.Unidal.Cat
             context.AddProperty(Context.CHILD, childId);
         }
 
+        // added by dingning
         public static void LogRemoteCallServer(Context context)
         {
             IMessageTree tree = GetManager().ThreadLocalMessageTree;
@@ -349,6 +351,7 @@ namespace Org.Unidal.Cat
             catch (Exception ex) { Cat.lastException = ex; return ""; }
         }
 
+        // added by dingning
         public abstract class Context
         {
             public const string ROOT = "_catRootMessageId";
